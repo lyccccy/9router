@@ -6,6 +6,7 @@ import { checkFallbackError, formatRetryAfter } from "./accountFallback.js";
 import { unavailableResponse } from "../utils/error.js";
 import { getCapabilitiesForModel } from "../providers/capabilities.js";
 import { extractTextContent } from "../translator/formats/gemini.js";
+import { CUSTOM_JSON_NO_FALLBACK } from "../config/customJson.js";
 
 // Hard capabilities = input modalities; missing one drops request data (e.g. image
 // stripped). Must be prioritized. Soft (e.g. search) only degrades a feature.
@@ -343,6 +344,7 @@ export async function handleComboChat({ body, models, handleSingleModel, log, co
 
     try {
       const result = await handleSingleModel(body, modelStr);
+      if (result[CUSTOM_JSON_NO_FALLBACK]) return result;
       
       // Success (2xx) - return response unless empty/zero-content on a non-final seat
       if (result.ok) {
